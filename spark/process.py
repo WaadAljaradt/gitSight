@@ -86,8 +86,7 @@ del_df =sc_sql.createDataFrame(deleted)
 #remove deleted docs
 docs_df.registerTempTable("repos")
 del_df.registerTempTable("deletedRepos")
-valid_repos = sc_sql.sql("Select * FROM repos t1 where not exists (select 1 from deletedRepos t2 where t1.id = t2.id )"$
-
+valid_repos = sc_sql.sql("Select * FROM repos t1 where not exists (select 1 from deletedRepos t2 where t1.id = t2.id )" )
 #filter repos based on description
 key_repo = valid_repos.rdd.filter(lambda x :not filDesc(x))
 docs.unpersist()
@@ -97,7 +96,8 @@ valid_repos.unpersist()
 watch = df.filter(lambda x : x.type == 'WatchEvent')
 
 
-stars_count = watch.map(lambda x : Row(x.repo.id,1)).reduceByKey(add).filter(lambda x : x[1]>10).map(lambda x : Row(id=$
+stars_count = watch.map(lambda x : Row(x.repo.id,1)).reduceByKey(add).filter(lambda x :\ 
+ x[1]>10).map(lambda x : Row(id=x[0], stars=x[1]))
 stars =sc_sql.createDataFrame(stars_count)
 stars.registerTempTable("starred")
 
