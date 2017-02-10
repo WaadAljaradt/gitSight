@@ -93,3 +93,11 @@ key_repo = valid_repos.rdd.filter(lambda x :not filDesc(x))
 docs.unpersist()
 valid_repos.unpersist()
 
+#get number of stars for every repositories 
+watch = df.filter(lambda x : x.type == 'WatchEvent')
+
+
+stars_count = watch.map(lambda x : Row(x.repo.id,1)).reduceByKey(add).filter(lambda x : x[1]>10).map(lambda x : Row(id=$
+stars =sc_sql.createDataFrame(stars_count)
+stars.registerTempTable("starred")
+
