@@ -38,6 +38,22 @@ REDIS_IP=sc.broadcast(cfg.REDIS_IP)
 REDIS_PORT=sc.broadcast(cfg.REDIS_PORT)
 REDIS_PASS =sc.broadcast(cfg.REDIS_PASS)
 
+
+#remove repositories that have less information in their description
+def filDesc(x):
+        first = re.compile(r'my first')
+        demo =re.compile(r'demo')
+        test = re.compile(r'test')
+        sample = re.compile(r'sample')
+        repoDesc = x.data['desc']
+        if( (not repoDesc) or (len(repoDesc.split()) <4) or
+                (first.search(repoDesc))or  (demo.search(repoDesc) and len(repoDesc.split())<10) or
+                ( test.search(repoDesc) and  len(repoDesc.split()) < 10)or
+                (sample.search(repoDesc) and len(repoDesc.split()) < 10)):
+                        return True
+        return False
+
+
 #Read Data from S3
 
 typesin = ['CreateEvent', 'DeleteEvent','WatchEvent']
@@ -66,3 +82,14 @@ pre_docs.unpersist()
 #create a SQL data frame for querying
 docs_df = sc_sql.createDataFrame(docs)
 del_df =sc_sql.createDataFrame(deleted)
+
+#remove deleted docs
+docs_df.registerTempTable("repos")
+del_df.registerTempTable("deletedRepos")
+valid_repos = sc_sql.sql("Select * FROM repos t1 where not exists (select 1 from deletedRepos t2 where t1.id = t2.id )"$
+
+#filter repos based on description
+key_repo = valid_repos.rdd.filter(lambda x :not filDesc(x))
+docs.unpersist()
+valid_repos.unpersist()
+
