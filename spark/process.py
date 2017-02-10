@@ -48,3 +48,21 @@ df= sc_sql.read.format("com.databricks.spark.avro").load(
      AWS_SECRET_ACCESS_KEY,
      S3_BUCKET,'*.avro')).rdd.filter(lambda x: x.type in types.value).persist(StorageLevel(True, True, False, False, 1))
 
+#Get repositories with their meta data 
+#Also get deleted ones to filter them out 
+pre_docs  = df.filter(lambda x : x.type == 'CreateEvent')
+deleted = df.filter(lambda x : x.type == 'DeleteEvent' \
+and json.loads(x.payload)['ref_type']=='branch' and \
+json.loads(x.payload)['ref']=='master').map(lambda x :Row(id=x.repo.id))
+
+
+docs = pre_docs.map(lambda x  : Row(id =x.repo.id,\
+data={'repo_id':x.repo.id,'repo_name':x.repo.name.encode('utf-8'),'desc':\
+json.loads(x.payload)['description'],'actor':  x.actor.login.encode('utf-8'),\
+'url':x.repo.url.encode('utf-8')}))
+
+pre_docs.unpersist()
+
+#create a SQL data frame for querying
+docs_df = sc_sql.createDataFrame(docs)
+del_df =sc_sql.createDataFrame(deleted)
