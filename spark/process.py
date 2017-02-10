@@ -101,3 +101,8 @@ stars_count = watch.map(lambda x : Row(x.repo.id,1)).reduceByKey(add).filter(lam
 stars =sc_sql.createDataFrame(stars_count)
 stars.registerTempTable("starred")
 
+key_repo_df =sc_sql.createDataFrame(key_repo)
+key_repo_df.registerTempTable("keyRepos")
+
+#get star numbers for each repo
+starred_repos = sc_sql.sql("Select * FROM keyRepos t1 join starred t2 on t1.id = t2.id" )
