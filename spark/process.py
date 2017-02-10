@@ -53,6 +53,20 @@ def filDesc(x):
                         return True
         return False
 
+#create serialized objects to redis db
+def write_to_redis(items):
+        redis_db = redis.Redis(host=REDIS_IP.value, port=REDIS_PORT.value,password=REDIS_PASS.value, db=1)
+        raw_data={}
+        for i in items:
+                raw_data['data']= json.dumps(i.data)
+                raw_data['stars']= i.stars
+                repo_name =i.data['repo_name']
+                raw_data['id']=i.id
+                json.dumps(raw_data, ensure_ascii=False)
+                redis_db.set(repo_name, raw_data)
+                print 'insert',  redis_db.get(repo_name)
+        yield None
+
 
 #Read Data from S3
 
@@ -106,3 +120,8 @@ key_repo_df.registerTempTable("keyRepos")
 
 #get star numbers for each repo
 starred_repos = sc_sql.sql("Select * FROM keyRepos t1 join starred t2 on t1.id = t2.id" )
+#write data to redis
+starred_repos.foreachPartition(write_to_redis)
+
+print "collect data DONE"
+sc.stop()
