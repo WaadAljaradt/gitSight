@@ -37,3 +37,14 @@ sc_sql = SQLContext(sc)
 REDIS_IP=sc.broadcast(cfg.REDIS_IP)
 REDIS_PORT=sc.broadcast(cfg.REDIS_PORT)
 REDIS_PASS =sc.broadcast(cfg.REDIS_PASS)
+
+#Read Data from S3
+
+typesin = ['CreateEvent', 'DeleteEvent','WatchEvent']
+types = sc.broadcast(typesin)
+df= sc_sql.read.format("com.databricks.spark.avro").load(
+    "s3a://%s:%s@%s/%s" %
+    (AWS_ACCESS_KEY_ID,
+     AWS_SECRET_ACCESS_KEY,
+     S3_BUCKET,'*.avro')).rdd.filter(lambda x: x.type in types.value).persist(StorageLevel(True, True, False, False, 1))
+
