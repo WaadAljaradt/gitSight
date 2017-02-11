@@ -17,4 +17,4 @@ app.secret_key = 'some_secret'
 @app.route('/')
 def index():
         words = getWords()
-        return render_template("index.html",value ="",words=words)
+        return render_template("bubble.html",value ="",words=words)
