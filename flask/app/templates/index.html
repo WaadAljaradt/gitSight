@@ -66,7 +66,7 @@
 {% if tags|length>1 %}
 <div class="tag-list well">
         {% for tag in  tags %}
-      <a href="/byWord?w={{tag['word']}}" class="btn btn-primary" role="button"><b>{{tag['word']}}</b> <small><span class="glyphicon glyphicon-asterisk"></span></small></a>
+      <a href="/byTopic?w={{tag['word']}}" class="btn btn-primary" role="button"><b>{{tag['word']}}</b> <small><span class="glyphicon glyphicon-asterisk"></span></small></a>
 {% endfor %}
 </div>
 {% endif %}
