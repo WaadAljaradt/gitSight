@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"  crossorigin="anonymous">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.0/css/font-awesome.min.css">
+
+<style>
+.search-title{
+    font-weight:normal;
+    color:#1a0dab;
+    font-size:18px;
+}
+.search-link{
+    color:#008443;
+}
+
+.search-link a{
+    color:#008443;
+    text-decoration:none
+}
+
+
+.search-para{
+    display:block;
+    color:#6a6a6a;
+}
+.btn-search i{ cursor:pointer; text-decoration:none}
+</style>
+<style>
+.tag-list .btn{
+  margin:2px;
+ }
+</style>
+<style>
+.tag-list .btn{
+  margin:2px;
+ }
+</style>
+<html>
+<head>
+<meta charset="utf-8">
+</head>
+<body>
+<div>
+  <center>
+<form action="/search" method="post" class="form-wrapper">
+    <input type="text" name="search" value= {{ value }} >
+    <input type="submit" value="go" id="submit">
+<select name="sort_by">
+    <option selected disabled>Sort by</option>
+    <option value="stars">stars</option>
+<select>
+<a href="/" class="btn btn-info" role="button">word bubble</a>
+</form>
+</center>
+</div>
+
+% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+<div class="container">
+{% if tags|length>1 %}
+<div class="tag-list well">
+        {% for tag in  tags %}
+      <a href="/byWord?w={{tag['word']}}" class="btn btn-primary" role="button"><b>{{tag['word']}}</b> <small>({{tag['weight']}})</small></a>
+{% endfor %}
+</div>
+{% endif %}
+<table>
+{% for hit in  hits %}
+<div class="col-xs-12 " style="margin-bottom:20px;">
+ <img src="static/images/repo.png" width="42" height="42">  <a href={{hit['url']}}>   <span class="search-title"> {{ hit['repo_name'] }}</span></a><br>
+ <span class="search-link"><span class="glyphicon glyphicon-star"></span>{{ hit['stars'] }}
+
+
+ </span>
+                  <span class="search-para"> {{ hit['desc'] }} <br></span>
+      </div>
+ </div>
+
+{% endfor %}
+
+ </div>
+</body>
+</html>
+
