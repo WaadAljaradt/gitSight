@@ -110,8 +110,8 @@ valid_repos.unpersist()
 watch = df.filter(lambda x : x.type == 'WatchEvent')
 
 
-stars_count = watch.map(lambda x : Row(x.repo.id,1)).reduceByKey(add).filter(lambda x :\ 
- x[1]>10).map(lambda x : Row(id=x[0], stars=x[1]))
+stars_count = watch.map(lambda x : Row(x.repo.id,1)).reduceByKey(add).filter(lambda x :x[1]>10) \
+.map(lambda x : Row(id=x[0], stars=x[1]))
 stars =sc_sql.createDataFrame(stars_count)
 stars.registerTempTable("starred")
 
