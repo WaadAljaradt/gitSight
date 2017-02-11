@@ -44,8 +44,8 @@ def search():
 
 
 
-@app.route('/byWord',methods=['GET'])
-def byWord():
+@app.route('/byTopic',methods=['GET'])
+def byTopic():
         term = request.args.get('w')
         data = getRepos(term)
         if (not data):
