@@ -109,6 +109,31 @@ def getTags(topic_id):
         tags =ast.literal_eval(lis)
         return tags
 
+def getMaxTop(res):
+        found = False
+        max_pro =0
+        max_top=''
+        topics =[]
+        for word in res:
+                try:
+                        topic_s = getTopic(word)
+                        topics.append(ast.literal_eval(topic_s))
+                        print topic_s, type(topic_s)
+                except :
+                        pass
+        if(topics):
+                if (not found):
+                        found = True
+        for topic in topics:
+                print 'in here', topic
+                if (topic['weight'] > max_pro):
+                        max_pro = topic['weight']
+                        max_top = topic['topic']
+        if found:
+                print 'found and it is ',max_top
+                return max_top
+
+
 
 def retrieve(str,data_range):
         ''' get topic of repo '''
@@ -121,3 +146,11 @@ def retrieve(str,data_range):
                 data=getRepoFromDbStr(repos)
                 tags = getTags(topic_id)
                 return (data,tags)
+
+def getWords():
+        redis_db = redis.Redis(host=REDIS_IP, port=REDIS_PORT,password=REDIS_PASS, db=11)
+        str =""
+        terms = redis_db.keys('*')
+        for key in terms:
+                str=str+" "+key
+        return str
