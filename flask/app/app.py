@@ -41,3 +41,18 @@ def search():
                 tags=data[1]
 
         return render_template("index.html",hits = docs ,tags=tags,value = str)
+
+
+
+@app.route('/byWord',methods=['GET'])
+def byWord():
+        term = request.args.get('w')
+        data = getRepos(term)
+        if (not data):
+                docs =[]
+                tags=[]
+                flash(u'No results were found, please try again!', 'error')
+        else:
+                docs=data[0]
+                tags=data[1]
+        return render_template("index.html",hits = docs ,value =term,tags=tags)
