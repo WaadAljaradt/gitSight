@@ -18,8 +18,21 @@ cfg = RedisConfig()
 REDIS_PORT=cfg.REDIS_PORT
 REDIS_IP=cfg.REDIS_IP
 REDIS_PASS=cfg.REDIS_PASS
+from nltk import PorterStemmer
 
 
+def process(str):
+        en_stop = get_stop_words('en')
+        print 'str in process', str
+        tokens = str.encode('ascii').split(' ')
+        str=[]
+        stopped_tokens = [i for i in tokens if not i in en_stop]
+        for w in stopped_tokens :
+                        for c in string.punctuation:
+                                s=w.replace(c,"")
+			ss=PorterStemmer().stem(s)
+                        str.append(ss)
+        return str
 
 
 
