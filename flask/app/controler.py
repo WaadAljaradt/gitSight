@@ -67,14 +67,9 @@ def getSimRepo(repo):
                         topicId = getMaxTop(res)
                         print 'in getSimRepo topicId=',topicId
                         return topicId
-        except requests.exceptions.Timeout as e:
-                time.sleep(30)
-        except requests.exceptions.ConnectionError as e:
-                time.sleep(30)
-        except requests.exceptions.HTTPError as e:
-                time.sleep(30)
         except Exception, e:
                 print e
+		return 
 
 
 ''' get related repos '''
