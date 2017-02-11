@@ -21,6 +21,22 @@ REDIS_PASS=cfg.REDIS_PASS
 from nltk import PorterStemmer
 
 
+
+
+def getTopic(word):
+        redis_db = redis.Redis(host=REDIS_IP, port=REDIS_PORT,password=REDIS_PASS, db=11)
+        v = redis_db.get(word)
+        return v
+
+def getRaw():
+        data =[]
+        redis_db = redis.Redis(host=REDIS_IP, port=REDIS_PORT,password=REDIS_PASS, db=11)
+        for key in redis_db.keys():
+                v = redis_db.get(key)
+                print key,v
+                data.append((key,make_tuple(v)))
+        return data
+
 def process(str):
         en_stop = get_stop_words('en')
         print 'str in process', str
@@ -154,3 +170,11 @@ def getWords():
         for key in terms:
                 str=str+" "+key
         return str
+
+def getRepos(word):
+        redis_db = redis.Redis(host=REDIS_IP, port=REDIS_PORT,password=REDIS_PASS, db=11)
+        topic_id = ast.literal_eval(getTopic(word))['topic']
+        repos = getDocsbyTopicId(topic_id,1)
+        data=getRepoFromDbStr(repos)
+        tags = getTags(topic_id)
+        return (data,tags)
