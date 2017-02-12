@@ -206,15 +206,16 @@ if __name__ == "__main__":
 	print("The topics described by their top-weighted terms:")
 	topicIndices.show(truncate=False)
 	topics = ldaModel.topicsMatrix()
+
+	#get words with their topic weights 
 	topic_ind = topicIndices.rdd.flatMap(extraxt)
-	print  topic_ind.take(2),'indeces'
-	res =topic_ind.map(write_terms).collect()
-	print res
-	redis_db = redis.Redis(host=REDIS_IP.value, port=REDIS_PORT.value,password=REDIS_PASS.value, db=4)
-	topic_words=topic_ind.map(lambda x : (x[0],(x[1],x[2]))).groupByKey().map(lambda x : (x[0], list(x[1])))
-	del topic_ind
-	res = topic_words.map(lambda x : write_pairs(x))
-	redis_db = redis.Redis(host=REDIS_IP.value, port=REDIS_PORT.value,password=REDIS_PASS.value, db=6)
-	#print res.take(2)
+	#group topics weight for word and assign to the max topic weight write to rd (word, (topic, weight))
+	word_topic=topic_ind.map(lambda x : (x[1],(x[0],x[2]))).groupByKey().map(lambda x : (x[0], list(x[1]))).map(lambda x : findMax(x))
+	words_topic=word_topic.map(lambda x : (x[0], {'topic':x[1],'weight':x[2]}))
+	words_topic.foreachPartition(write_terms)
+	
+	#group words associated with each topic with max weight
+	topics_json = word_topic.map(lambda x: (x[1],{'word':x[0],'weight':x[2]})).groupByKey().map(lambda x : (x[0], list(x[1])))
+        topics_json.foreachPartition(write_topics)
 	sc.stop()
 
