@@ -41,31 +41,31 @@ REDIS_PASS =sc.broadcast(cfg.REDIS_PASS)
 
 #remove repositories that have less information in their description
 def filDesc(x):
-        first = re.compile(r'my first')
-        demo =re.compile(r'demo')
-        test = re.compile(r'test')
-        sample = re.compile(r'sample')
-        repoDesc = x.data['desc']
-        if( (not repoDesc) or (len(repoDesc.split()) <4) or
-                (first.search(repoDesc))or  (demo.search(repoDesc) and len(repoDesc.split())<10) or
-                ( test.search(repoDesc) and  len(repoDesc.split()) < 10)or
-                (sample.search(repoDesc) and len(repoDesc.split()) < 10)):
-                        return True
-        return False
+    first = re.compile(r'my first')
+    demo =re.compile(r'demo')
+    test = re.compile(r'test')
+    sample = re.compile(r'sample')
+    repoDesc = x.data['desc']
+    if ( (not repoDesc) or (len(repoDesc.split()) <4) or
+       (first.search(repoDesc))or  (demo.search(repoDesc) and len(repoDesc.split())<10) or
+       ( test.search(repoDesc) and  len(repoDesc.split()) < 10)or
+       (sample.search(repoDesc) and len(repoDesc.split()) < 10)):
+       return True
+    return False
 
 #create serialized objects to redis db
 def write_to_redis(items):
-        redis_db = redis.Redis(host=REDIS_IP.value, port=REDIS_PORT.value,password=REDIS_PASS.value, db=1)
-        raw_data={}
-        for i in items:
-                raw_data['data']= json.dumps(i.data)
-                raw_data['stars']= i.stars
-                repo_name =i.data['repo_name']
-                raw_data['id']=i.id
-                json.dumps(raw_data, ensure_ascii=False)
-                redis_db.set(repo_name, raw_data)
-                print 'insert',  redis_db.get(repo_name)
-        yield None
+    redis_db = redis.Redis(host=REDIS_IP.value, port=REDIS_PORT.value,password=REDIS_PASS.value, db=1)
+    raw_data={}
+    for i in items:
+        raw_data['data']= json.dumps(i.data)
+        raw_data['stars']= i.stars
+        repo_name =i.data['repo_name']
+        raw_data['id']=i.id
+        json.dumps(raw_data, ensure_ascii=False)
+        redis_db.set(repo_name, raw_data)
+        print 'insert',  redis_db.get(repo_name)
+    yield None
 
 
 #Read Data from S3
