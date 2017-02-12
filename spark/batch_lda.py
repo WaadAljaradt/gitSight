@@ -9,7 +9,7 @@ import re
 from pyspark.ml.feature import CountVectorizer
 from pyspark.ml.feature import StopWordsRemover
 from pyspark.ml.clustering import DistributedLDAModel,LDA
-RedisConfig = imp.load_source('RedisConfig', '/home/ubuntu/Insigh-DataEngineering-gitsight/src/main/redis_conf/RedisConfig.py')
+RedisConfig = imp.load_source('RedisConfig', '/redis_conf/RedisConfig.py')
 from datetime import datetime
 import redis
 from RedisConfig import RedisConfig
@@ -41,10 +41,16 @@ def getValues(keys):
 def process(docs):
 	result =[]
 	for doc in docs:
-		json_data =  ast.literal_eval(doc[1])
-		desc = ast.literal_eval(json_data['meta'])['desc']
-		name = ast.literal_eval(json_data['meta'])['repo_name']
-		result.append(Row(idd=name,words=desc.split(' ')))
+		json_data = ast.literal_eval(doc[1])
+                try:
+                        meta_data = ast.literal_eval(json_data['data'])
+                        desc = meta_data['desc']
+                        name = meta_data['repo_name']
+                        result.append(Row(idd=name,words=desc.split(' ')))
+                except:
+                        print doc
+                        pass
+
 	return result
 
 def stem_words(wordList) :
@@ -55,7 +61,10 @@ def stem_words(wordList) :
                 	s = w.encode('ascii')
                 	for c in string.punctuation:
                         	s=s.replace(c,"")
-                	strs.append(s)
+                	if (len(s)>2):
+                                ss=PorterStemmer().stem(s)
+                                strs.append(ss)
+
         	row = Row(idd = word[0], words =strs)
 		rows.append(row)
         return  rows
@@ -69,15 +78,14 @@ def get_names(repos):
         return names
 def doc_name(data):
 	json_data =  ast.literal_eval(data[1])
-        meta = ast.literal_eval(json_data['meta'])
-	name = meta['repo_name']
-	stars = json_data['stars']
-	updated =datetime.fromtimestamp(int(json_data['created_at'])/1000000).strftime('%Y-%m-%d %H:%M:%S')
-	url =meta['url']
-	actor=meta['actor']
-	res = (name,(data[0],stars, updated, url, actor))
-	return res 
-	
+        meta = ast.literal_eval(json_data['data'])
+        name = meta['repo_name']
+        stars = json_data['stars']
+        url =meta['url']
+        actor=meta['actor']
+        res = (name,(data[0],stars, url, actor))
+        return res
+
 def extraxt(x):
         d=[]
         for word, weight in zip (x[1],x[2]):
@@ -85,25 +93,20 @@ def extraxt(x):
                 d.append((x[0],w,weight))
         return d
 
-def write_time(record):
-        redis_db = redis.Redis(host=REDIS_IP.value, port=REDIS_PORT.value,password=REDIS_PASS.value, db=2)
-	redis_db.set(record[0], record[1])
-        print 'insert',  redis_db.get(record[0])
-	return True
 
 def write_stars(record):
-        redis_db = redis.Redis(host=REDIS_IP.value, port=REDIS_PORT.value,password=REDIS_PASS.value, db=3)
-	redis_db.set(record[0], record[1])
-	print 'insert',  redis_db.get(record[0]) 
-	return True 
+        redis_db = redis.Redis(host=REDIS_IP.value, port=REDIS_PORT.value,password=REDIS_PASS.value, db=10)
+        for repo in record[1]:
+                        redis_db.rpush(record[0], json.dumps(repo))
+                        #print 'insert to 4',  redis_db.get(record[0])
+        print 'insert',  redis_db.rpop(record[0])
+        return True
 
 def write_terms(word):
-	print 'hey insert_t', word
-	redis_db = redis.Redis(host=REDIS_IP.value, port=REDIS_PORT.value,password=REDIS_PASS.value, db=4)
-	redis_db.set(word[1], (word[0],word[2]))
-	print 'term_insert',  redis_db.get(word[1])
-	print 'hey in write',word
-	return True
+	redis_db = redis.Redis(host=REDIS_IP.value, port=REDIS_PORT.value,password=REDIS_PASS.value, db=11)
+        for record in records:
+                redis_db.set(record[0], json.dumps(record[1]))
+                print 'insert to 4',  redis_db.get(record[0])
 
 def repo_topic(trans):
 	redis_db = redis.Redis(host=REDIS_IP.value, port=REDIS_PORT.value,password=REDIS_PASS.value, db=5)
@@ -114,11 +117,12 @@ def repo_topic(trans):
 		redis_db.set(key, value)
 		res.append((key, value))
 	return res
-def write_pairs(record):
-        redis_db = redis.Redis(host=REDIS_IP.value, port=REDIS_PORT.value,password=REDIS_PASS.value, db=6)
-        redis_db.set(record[0], record[1])
-        print 'insert',  redis_db.get(record[0])
-        return True
+
+def write_topics(records):
+        redis_db = redis.Redis(host=REDIS_IP.value, port=REDIS_PORT.value,password=REDIS_PASS.value, db=13)
+        for record in records:
+                redis_db.set(record[0], json.dumps(record[1]))
+                print 'insert',  redis_db.get(record[0])
 
 def similar_repo(repos):
 	result =[]
@@ -130,17 +134,25 @@ def similar_repo(repos):
 			topic_id = repo[1][1]
                         data = repo[1][0]
 		json_obj={}
-		json_obj['repo_name']=repo[0]
-		json_obj['repo_id']=data[0]
-		json_obj['stars']=data[1]
-		json_obj['updated']=data[2]
-		json_obj['url']=data[3]
-		json_obj['actor']=data[4]
-		result.append((topic_id,json_obj))
+                json_obj['repo_name']=repo[0]
+                json_obj['repo_id']=data[0]
+                json_obj['stars']=data[1]
+                json_obj['updated']=data[2]
+                json_obj['url']=data[3]
+                json_obj['actor']=data[4]
+                json_obj['desc']=data[4]
+                result.append((topic_id,json_obj))
+
 	return result
-def bateekh(word):
-	print 'zeft',word
-	return True
+def findMax(record):
+        w = record[0]
+        max_w=0
+        max_t=0
+        for topic, weight in record[1]:
+                if (weight > max_w):
+                        max_w=weight
+                        max_t=topic
+        return (w,max_t,max_w)
 
 			
 if __name__ == "__main__":
@@ -148,10 +160,14 @@ if __name__ == "__main__":
 	REDIS_PORT=sc.broadcast(cfg.REDIS_PORT)
 	REDIS_PASS =sc.broadcast(cfg.REDIS_PASS)
 	redis_db = redis.Redis(host=cfg.REDIS_IP, port=cfg.REDIS_PORT,password=cfg.REDIS_PASS, db=1)
+	
+	#retrieve repositories form db
 	keys = redis_db.keys()
 	rawData = sc.parallelize(keys)
 	data = rawData.mapPartitions(getValues)
 	rawData.unpersist()
+
+	#prepare description for LDA
 	docs = data.mapPartitions(process)
 	docDF = sc_sql.createDataFrame(docs)
 	docs.unpersist()
@@ -160,28 +176,33 @@ if __name__ == "__main__":
 	docDF.unpersist()
 	stem  = df.rdd.mapPartitions(lambda x :stem_words(x))
 	df.unpersist()
+	
+	#create data fram of repos with their features vectors 
 	df =  sc_sql.createDataFrame(stem)
 	Vector = CountVectorizer(inputCol="words", outputCol="features")
 	model = Vector.fit(df)
 	result = model.transform(df)
-	lda = LDA(k=20, maxIter=10,optimizer='em')
+	
+	#LDA modeling
+	lda = LDA(k=60, maxIter=10,optimizer='em')
 	ldaModel = lda.fit(result)
 	transformed = ldaModel.transform(result)
+	
+	#writre in the form of (repo_name,topic_id) to redis 
 	trans = transformed.rdd.mapPartitions(repo_topic)
-	del transformed
-	repo_names = data.map(lambda x : doc_name(x))
-	ful_data = trans.union(repo_names)
-	collect_data = ful_data.groupByKey().map(lambda x : (x[0], list(x[1])))
-	print collect_data.take(1)
-	sim_doc = collect_data.mapPartitions(similar_repo).groupByKey().map(lambda x : (x[0], list(x[1])))
-	sort_time = sim_doc.map(lambda x : (x[0],sorted(x[1], key=lambda tup: datetime.strptime(tup['updated'], '%Y-%m-%d %H:%M:%S'),reverse=True)))
-	sort_stars = sim_doc.map(lambda x : (x[0],sorted(x[1], key=lambda tup:tup['stars'],reverse=True)))
-	write = sort_time.map(lambda x : write_time(x))
-	print write.take(2)
+
+	#group results as (topic_id, repos)
+	ful_data = trans.join(data)
+        topic_repo = ful_data.map(lambda x : (x[1][0],x[1][1]))
+        topic_repos = topic_repo.groupByKey().map(lambda x : (x[0], list(x[1])))
+	
+	#sort by number of stars and write to database
+        sort_stars = topic_repos.map(lambda x : (x[0],sorted(x[1], key=lambda i:ast.literal_eval(i)['stars'],reverse=True)))
 	sort_stars.foreach(write_stars)
+
 	'''vocabulary'''
 	vocabArray = model.vocabulary
-	topicIndices = ldaModel.describeTopics(5)
+	topicIndices = ldaModel.describeTopics(200)
 	print("The topics described by their top-weighted terms:")
 	topicIndices.show(truncate=False)
 	topics = ldaModel.topicsMatrix()
