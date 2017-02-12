@@ -16,54 +16,52 @@ app.secret_key = 'some_secret'
 
 @app.route('/')
 def index():
-        words = getWords()
-        return render_template("bubble.html",value ="",words=words)
+    words = getWords()
+    return render_template("bubble.html",value ="",words=words)
 
 
 
 @app.route('/search',methods=['POST'])
 def search():
-        str = request.form.get('search')
-        stars = request.form.getlist('sort_by')
-        if('/' not in str.encode('ascii')):
-                print 'here'
-                data = getRepos(str)
-                if (not data):
-                        docs =[]
-                        tags=[]
-                        flash(u'No results were found, please try again!', 'error')
-                else:
-                        docs=data[0]
-                        tags=data[1]
-                return render_template("index.html",hits = docs ,value =str,tags=tags)
+    str = request.form.get('search')
+    stars = request.form.getlist('sort_by')
+    if('/' not in str.encode('ascii')):
+         print 'here'
+         data = getRepos(str)
+         if (not data):
+             docs =[]
+             tags=[]
+             flash(u'No results were found, please try again!', 'error')
+         else:
+             docs=data[0]
+             tags=data[1]
+         return render_template("index.html",hits = docs ,value =str,tags=tags)
+    data =[]
+    if stars:
+        data= retrieve(str,2)
+    else :
+        data= retrieve(str,1)
+    if(not data):
+        docs =[]
+        tags=[]
+        flash(u'No results were found, please try again!', 'error')
+    else:
+        docs=data[0]
+        tags=data[1]
 
-        data =[]
-        if stars:
-                data= retrieve(str,2)
-        else :
-                data= retrieve(str,1)
-        flag = 0
-        if(not data):
-                docs =[]
-                tags=[]
-                flash(u'No results were found, please try again!', 'error')
-        else:
-                docs=data[0]
-                tags=data[1]
-
-        return render_template("index.html",hits = docs ,tags=tags,value = str)
+    return render_template("index.html",hits = docs ,tags=tags,value = str)
 
 
 
 @app.route('/byTopic',methods=['GET'])
 def byTopic():
-        term = request.args.get('w')
-        data = getRepos(term)
-        if (not data):
-                docs =[]
-                tags=[]
-                flash(u'No results were found, please try again!', 'error')
-        else:
-                docs=data[0]
-                tags=data[1]
-        return render_template("index.html",hits = docs ,value =term,tags=tags)
+    term = request.args.get('w')
+    data = getRepos(term)
+    if (not data):
+        docs =[]
+        tags=[]
+        flash(u'No results were found, please try again!', 'error')
+    else:
+        docs=data[0]
+        tags=data[1]
+    return render_template("index.html",hits = docs ,value =term,tags=tags)
