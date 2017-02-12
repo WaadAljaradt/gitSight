@@ -146,7 +146,7 @@ def getMaxTop(res):
 
 
 def retrieve(str,data_range):
-        ''' get topic of repo '''
+    ''' get topic of repo '''
     redis_db = redis.Redis(host=REDIS_IP, port=REDIS_PORT,password=REDIS_PASS, db=12)
     topic_id =redis_db.get(str)
     if (not topic_id):
