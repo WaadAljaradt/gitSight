@@ -68,4 +68,39 @@ Owners of these repositories were represented as nodes. Star events happening be
 The more dense the graph is the more interactions took place between these repositories in each topic <br />
 
 
+# Usage : <br />
+install redis 
+<br />
+``` 
+sudo pip insall redis 
+```
+<br />
+load configuration parameters <br />
 
+```
+python redis_config/shared_config.py
+```
+run process batch to pre-process github data <br />
+```
+ spark-submit --master spark://ip- :7077 --driver-memory 13g\
+ --packages com.databricks:spark-avro_2.11:3.1.0 \
+  /process.py
+  ```
+  run LDA for topic modeling <br />
+  ```
+spark-submit --master spark://ip- :7077 --driver-memory 13g\
+ --packages com.databricks:spark-avro_2.11:3.1.0 \
+  /batch_lda.py.py
+  ```
+    run to create a graph of starring events <br />
+   ```
+   spark-submit --master spark://ip- :7077 --driver-memory 13g\
+ --packages com.databricks:spark-avro_2.11:3.1.0 \
+  /batch_lda.py.py
+  ```
+  
+ <br />
+ start flask 
+  ```
+ sudo python flask/app.py
+ ```
