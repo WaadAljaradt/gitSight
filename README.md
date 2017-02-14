@@ -18,10 +18,10 @@ http://www.slideshare.net/waadjaradat/insightdataengineeringgitsight <br />
  <br /> 
 # Motivation
 
-Find interesting repositories on github based on discription modeling, also look up repositories based on topic key word, gitsight make it possible to search a repo name and get similar ones it also displays others word associated with this topic, the land page shows the top 200 keyword most frequent used in repositories discriptions. 
+Find interesting repositories on github based on discription modeling, also look up repositories based on topic key word, <br /> gitsight make it possible to search a repo name and get similar ones it also displays others word associated with this topic, <br /> the land page shows the top 200 keyword most frequent used in repositories discriptions.  <br />
 
- <br />
- # Technologies <br />
+
+ #Technologies <br />
 It makes use of the following technologies:
  <br />
 Google BigQuery (for obtaining raw GitHub source files) <br />
