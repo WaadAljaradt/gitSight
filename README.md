@@ -38,10 +38,10 @@ D3.js  <br />
 
 <br />
 # Data : <br />
-2015 and 2016 time line data serialized using avro and saved into S3 file system <br />
+About 1.5 TB of 2015 and 2016 time line data serialized using avro and saved into S3 file system  <br />
 
 # pre-process :<br />
-Data is loaded into spark cleaned and parsed to extract relative fields such as description and login user for each one, <br />
+Data is loaded into Spark, cleaned, and parsed to extract relative fields such as description and login user for each one, <br />
 the time line is then aggregated and deleted repositories are filtered out. <br />
 also number of stars are aggregated and counted for each repositories throught out the time line data using<br />
 map and reduce techniques. <br />
