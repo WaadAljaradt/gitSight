@@ -77,38 +77,22 @@ df= sc_sql.read.format("com.databricks.spark.avro").load(
 
 #get repos for each topic
 size = range(getSize())
-#size =[0]
+
 keys = sc.parallelize(size)
-repos = keys.map(lambda x:(x, getRepos(x))).collect()
-#get topic_id, repo name 
-for id,topic in enumerate(repos) :
-        repos_rdd = sc.parallelize(topic[1])
-        re_repos = repos_rdd.map(lambda x : getName(x))
-        repo_user=re_repos.map(lambda x :Row(repo=x.split("/")[1],user= x.split("/")[0]))
+repos = keys.flatMap(lambda x:(x, getRepos(x)))
+ 
+re_repos = repos_rdd.map(lambda x : getName(x))
+repo_user=re_repos.map(lambda x :Row(repo=x.split("/")[1],user= x.split("/")[0]))
 
-
-
-for id,topic in enumerate(repos) :
-        repos_rdd = sc.parallelize(topic[1])
-        re_repos = repos_rdd.map(lambda x : getName(x))
-        repo_user=re_repos.map(lambda x :Row(repo=x.split("/")[1],user= x.split("/")[0]))
-
-#broadcast user and repos names to get their star event
-        key_rep =repo_user.map(lambda x :x.repo).collect()
-        key_usr =repo_user.map(lambda x :x.user).collect()
-        print "value of key_rep", key_rep[0]
-        print "value of key_usr", key_usr[0]
-        key_repos = sc.broadcast(key_rep)
-        key_user=sc.broadcast(key_usr)
-
+repo_user_tbl = sc_sql.createDataFrame(repo_user)
+repo_user_tbl.registerTempTable("repo_user_tbl")
 #get star events relevant to repos in db
-        print df.take(1)[0].repo.name, 'from df'
-        star_1 = df.filter(lambda x : x.repo.name.split("/")[1] in key_repos.value)
-        print star_1.take(2)
-        stars_2 = star_1.filter(lambda x : x.actor.login in key_user.value)
-        print stars_2.take(2)
+        
+stars = df.map(lambda x : Row(topic_id = id,userA=x.actor.login, userB=x.repo.name.split("/")[0]))
+stars_tbl = sc_sql.createDataFrame(stars)
+stars_tbl.registerTempTable("stars_tbl")
 
-#
-        edges = stars_2.map(lambda x: Row(topic_id = id,userA=x.actor.login, userB=x.repo.name.split("/")[0]))
-        edges.foreachPartition(write_edges)
-        print edges.take(1)
+edges = sc_sql.sql("Select * FROM stars_tbl t1 where t1.userA and t1.userB in (select user from repo_user_tbl)" ) 
+
+edges.rdd.foreachPartition(write_edges)
+print edges.take(1)
