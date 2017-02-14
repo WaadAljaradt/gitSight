@@ -90,13 +90,13 @@ run process batch to pre-process github data <br />
   ```
 spark-submit --master spark://ip- :7077 --driver-memory 13g\
  --packages com.databricks:spark-avro_2.11:3.1.0 \
-  /batch_lda.py.py
+  /batch_lda.py
   ```
     run to create a graph of starring events <br />
    ```
    spark-submit --master spark://ip- :7077 --driver-memory 13g\
  --packages com.databricks:spark-avro_2.11:3.1.0 \
-  /batch_lda.py.py
+  /graph.py
   ```
   
  <br />
