@@ -2,7 +2,7 @@
 Find related Repositories on Github <br /> 
 Search for repositories by topic <br /> 
 
-<a href="www.gitsight.site">gitsight.site/a> <br />
+[gitsight.site](http://www.gitsight.site) <br />
 Gitsight was my project for Insight Data Engineering, Winter 2017. <br /> 
 
 # Demo : <br /> 
