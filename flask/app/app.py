@@ -65,3 +65,39 @@ def byTopic():
         docs=data[0]
         tags=data[1]
     return render_template("index.html",hits = docs ,value =term,tags=tags)
+
+
+@app.route('/getGraph')
+def getGraph():
+        t = request.args.get('t')
+        print t
+        return render_template("graph.html",topic_id=t)
+
+@app.route('/jGraph')
+def getjGraph():
+        t = request.args.get('t')
+        graph = jGraph(t)
+        print graph
+        return graph
+
+@app.route('/getBytopicId')
+def getRepoByTopicId():
+        topic_id = request.args.get('t')
+        if not topic_id :
+                docs =[]
+                tags=[]
+                topic_id=""
+                flash(u'No results were found, please try again!', 'error')
+                return render_template("index.html",hits = docs ,value ="",tags=tags, topic_id=topic_id)
+        data = getByTopicId(topic_id)
+        if (not data):
+                docs =[]
+                tags=[]
+                topic_id=""
+                flash(u'No results were found, please try again!', 'error')
+
+        else:
+                docs=data[0]
+                tags=data[1]
+                topic_id=data[2]
+        return render_template("index.html",hits = docs ,value ="",tags=tags, topic_id=topic_id)
