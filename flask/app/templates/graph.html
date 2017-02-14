@@ -1,0 +1,132 @@
+
+<!DOCTYPE html>
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.0/css/font-awesome.min.css">
+
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="http://code.jquery.com/jquery-3.1.1.min.js"></script>
+<style>
+.links line {
+  stroke: #ccc;
+  stroke-width: 2px;
+}
+.nodes circle {
+  fill: #fff;
+  stroke: steelblue;
+  stroke-width: 3px;
+}
+.button {
+    display: block;
+    width: 115px;
+    height: 25px;
+    background: #4E9CAF;
+    padding: 10px;
+    text-align: center;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+}
+
+
+</style>
+<div>
+<a href="/getBytopicId?t={{topic_id}}" class="button"> Back</a>
+</div>
+<br><br>
+  <svg width="1200" height="800"></svg>
+  <br>
+
+<script>
+var svg = d3.select("svg"),
+    width = +svg.attr("width"),
+    height = +svg.attr("height");
+var color = d3.scaleOrdinal(d3.schemeCategory20);
+var simulation = d3.forceSimulation()
+    .force("link", d3.forceLink().id(function(d) { return d.id; }))
+    .force("charge", d3.forceManyBody().strength(-20))
+    .force("center", d3.forceCenter(width / 2, height / 2));
+
+
+function getRandomColor() {
+    var letters = '0123456789ABCDEF';
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
+function refreshGraph() {
+  svg.selectAll("*").remove();
+  var _link = svg.append("g")
+      .attr("class", "links")
+    .selectAll("line")
+    .data(graph.links, function(d) { return d.source + "/" + d.target; });
+
+var link = _link
+    .enter().append("line")
+      .attr("stroke-width", 2);
+  console.log(_link)
+  _link.exit().remove();
+  var _node = svg.append("g")
+      .attr("class", "nodes")
+    .selectAll("circle")
+    .data(graph.nodes, function(d) { return d.id; });
+var node = _node
+    .enter().append("circle")
+      .attr("r", 5)
+      .attr("r", function(d) { return 3; })
+      .attr("fill", function(d) { return color(getRandomColor()); })
+      .call(d3.drag()
+          .on("start", dragstarted)
+          .on("drag", dragged)
+          .on("end", dragended));
+ _node.exit().remove()
+  node.append("title")
+      .text(function(d) { return d.id; });
+simulation
+      .nodes(graph.nodes)
+      .on("tick", ticked);
+  simulation.force("link")
+      .links(graph.links);
+  function ticked() {
+    link
+ .attr("x1", function(d) { return d.source.x; })
+        .attr("y1", function(d) { return d.source.y; })
+        .attr("x2", function(d) { return d.target.x; })
+        .attr("y2", function(d) { return d.target.y; });
+    node
+        .attr("cx", function(d) { return d.x; })
+        .attr("cy", function(d) { return d.y; });
+  }
+}
+
+function dragstarted(d) {
+  if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+  d.fx = d.x;
+  d.fy = d.y;
+}
+function dragged(d) {
+  d.fx = d3.event.x;
+  d.fy = d3.event.y;
+}
+function dragended(d) {
+  if (!d3.event.active) simulation.alphaTarget(0);
+  d.fx = null;
+  d.fy = null;
+}
+var topic_id= {{topic_id}};
+      if (topic_id != "") {
+        $.get(encodeURI("/jGraph?t="+topic_id),
+          function(data, status) {
+            if (status == "success") {
+              graph = data;
+              refreshGraph();
+            }
+          }
+        )
+      }
+
+</script>
+</html>
+
+
