@@ -104,3 +104,8 @@ spark-submit --master spark://ip- :7077 --driver-memory 13g\
   ```
  sudo python flask/app.py
  ```
+ Or install tornado and run it 
+ 
+ ```
+ sudo -E python tornadoapp.py
+ ```
