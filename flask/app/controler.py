@@ -172,3 +172,31 @@ def getRepos(word):
     data=getRepoFromDbStr(repos)
     tags = getTags(topic_id)
     return (data,tags)
+
+
+def jGraph(t):
+    redis_db = redis.Redis(host=REDIS_IP, port=REDIS_PORT,password=REDIS_PASS, db=8)
+    graph=redis_db.lrange(t,0,-1)
+    if graph is None:
+        abort(404)
+    nodes=[]
+    links=[]
+    unique_nod=Set()
+    for edge in graph:
+        rel=ast.literal_eval(edge)
+        if rel['usera'] not in unique_nod:
+                unique_nod.add(rel['usera'])
+                nodes.append({"id" : rel['usera']})
+        if rel['userb'] not in unique_nod:
+                unique_nod.add(rel['userb'])
+                nodes.append({"id" : rel['userb']})
+        links.append({"source": rel['usera'], "target": rel['userb']})
+    return jsonify({"nodes": nodes, "links": links})
+
+
+def getByTopicId(topic_id):
+    repos = getDocsbyTopicId(topic_id,1)
+    data=getRepoFromDbStr(repos)
+    tags = getTags(topic_id)
+    return (data,tags, topic_id)
+
