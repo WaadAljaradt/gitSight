@@ -6,7 +6,7 @@ Gitsight was my project for Insight Data Engineering, Winter 2017. <br />
 
 Demo : <br /> 
 
-[![](https://www.youtube.com/vi/0at2sHQquKg/0.jpg)]
+[![](http://img.youtube.com/vi/0at2sHQquKg/0.jpg)]
 (https://www.youtube.com/watch?v=0at2sHQquKg)
 
  <br /> 
