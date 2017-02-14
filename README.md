@@ -32,5 +32,7 @@ Flask  <br />
 D3.js  <br />
 The pipeline :
 
+<img width="1279" alt="screen shot 2017-02-13 at 6 41 18 pm" src="https://cloud.githubusercontent.com/assets/8670178/22912783/1089051a-f21c-11e6-9f95-fae81be8967d.png">
+
 
 
