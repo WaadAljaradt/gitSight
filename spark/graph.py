@@ -34,6 +34,34 @@ conf = SparkConf() \
 sc = SparkContext(conf=conf)
 sc_sql = SQLContext(sc)
 ###############################################################################
+def getRepos(topic_id):
+        redis_db = redis.Redis(host=REDIS_IP.value, port=REDIS_PORT.value,password=REDIS_PASS.value, db=10)
+        repos = redis_db.lrange(topic_id, 0, -1 )
+        return repos
+
+def getSize():
+        redis_db = redis.Redis(host=REDIS_IP.value, port=REDIS_PORT.value,password=REDIS_PASS.value, db=10)
+        size = redis_db.dbsize()
+        return size
+
+def getRowOfForks(x):
+        #s = json.loads(x.payload)['repository']
+        repo = x.repo.name
+        user= x.actor.login
+        return Row(repo=repo,user=user)
+def getName(repo):
+        jsonData =ast.literal_eval(repo)
+        json_data= ast.literal_eval(jsonData)
+        meta_data=json_data['data']
+        meta = json.loads(meta_data)
+        return  meta['repo_name'].encode('ascii')
+
+
+
+
+
+
+
 df= sc_sql.read.format("com.databricks.spark.avro").load(
     "s3a://%s:%s@%s/%s" %
     (AWS_ACCESS_KEY_ID,
