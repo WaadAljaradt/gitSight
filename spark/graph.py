@@ -57,7 +57,14 @@ def getName(repo):
         return  meta['repo_name'].encode('ascii')
 
 
-
+def write_edges(records):
+        redis_db = redis.Redis(host=REDIS_IP.value, port=REDIS_PORT.value,password=REDIS_PASS.value, db=8)
+        for e in records:
+                        edge ={'usera':e.userA.encode('ascii'),'userb':e.userB.encode('ascii')}
+                        #print edge, e.topic_id, 'in Redis'
+                        redis_db.rpush(e.topic_id, json.dumps(edge))
+                        #print 'insert',  redis_db.rpop(e.topic_id)
+        return True
 
 
 
@@ -78,3 +85,30 @@ for id,topic in enumerate(repos) :
         repos_rdd = sc.parallelize(topic[1])
         re_repos = repos_rdd.map(lambda x : getName(x))
         repo_user=re_repos.map(lambda x :Row(repo=x.split("/")[1],user= x.split("/")[0]))
+
+
+
+for id,topic in enumerate(repos) :
+        repos_rdd = sc.parallelize(topic[1])
+        re_repos = repos_rdd.map(lambda x : getName(x))
+        repo_user=re_repos.map(lambda x :Row(repo=x.split("/")[1],user= x.split("/")[0]))
+
+#broadcast user and repos names to get their star event
+        key_rep =repo_user.map(lambda x :x.repo).collect()
+        key_usr =repo_user.map(lambda x :x.user).collect()
+        print "value of key_rep", key_rep[0]
+        print "value of key_usr", key_usr[0]
+        key_repos = sc.broadcast(key_rep)
+        key_user=sc.broadcast(key_usr)
+
+#get star events relevant to repos in db
+        print df.take(1)[0].repo.name, 'from df'
+        star_1 = df.filter(lambda x : x.repo.name.split("/")[1] in key_repos.value)
+        print star_1.take(2)
+        stars_2 = star_1.filter(lambda x : x.actor.login in key_user.value)
+        print stars_2.take(2)
+
+#
+        edges = stars_2.map(lambda x: Row(topic_id = id,userA=x.actor.login, userB=x.repo.name.split("/")[0]))
+        edges.foreachPartition(write_edges)
+        print edges.take(1)
