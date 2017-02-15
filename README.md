@@ -69,10 +69,13 @@ The more dense the graph is the more interactions took place between these repos
 
 
 # Usage : <br />
-install redis 
+install redis and spark have their servers running in the background  <br />
+install dependencies 
 <br />
 ``` 
-sudo pip insall redis 
+sudo pip insall redis
+sudo pip install nltk
+sudo pip install stop-words
 ```
 <br />
 load configuration parameters <br />
