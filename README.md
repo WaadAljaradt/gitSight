@@ -63,39 +63,49 @@ Data is then saved into  Key-value Redis forfast querying, the data was denormal
 (topic_id, words) <br />
 
 
-# Graph visualization <br />
+# Graph visualization  <br />
+
 Owners of these repositories were represented as nodes. Star events happening between them were aggregated to create <br /> links of starring between these nodes. <br />
 The more dense the graph is the more interactions took place between these repositories in each topic <br />
 
 
-# Usage : <br />
+# Usage :  <br />
 install redis and spark have their servers running in the background  <br />
 install dependencies 
 <br />
+
 ``` 
 sudo pip insall redis
 sudo pip install nltk
 sudo pip install stop-words
 ```
-<br />
+
+
 load configuration parameters <br />
 
 ```
 python redis_config/shared_config.py
 ```
-run process batch to pre-process github data <br />
+
+
+run process.py for batch to pre-process github data <br />
+
 ```
  spark-submit --master spark://ip- :7077 --driver-memory 13g\
  --packages com.databricks:spark-avro_2.11:3.1.0 \
   /process.py
   ```
-  run LDA for topic modeling <br />
+  
+  run batch_lda for topic modeling <br />
+  
   ```
 spark-submit --master spark://ip- :7077 --driver-memory 13g\
  --packages com.databricks:spark-avro_2.11:3.1.0 \
   /batch_lda.py
   ```
-    run to create a graph of starring events <br />
+  
+run graph.py to create a graph of starring events <br />
+    
    ```
    spark-submit --master spark://ip- :7077 --driver-memory 13g\
  --packages com.databricks:spark-avro_2.11:3.1.0 \
