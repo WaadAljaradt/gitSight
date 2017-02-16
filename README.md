@@ -33,7 +33,7 @@ Redis  <br />
 Flask  <br />
 D3.js  <br />
 
-# pipeline :
+# Pipeline :
 <br />
 <img width="1279" alt="screen shot 2017-02-13 at 6 41 18 pm" src="https://cloud.githubusercontent.com/assets/8670178/22912783/1089051a-f21c-11e6-9f95-fae81be8967d.png">
 
@@ -41,7 +41,7 @@ D3.js  <br />
 # Data : <br />
 About 1.5 TB of 2015 and 2016 time line data serialized using Avro and saved into S3 file system  <br />
 
-# pre-process :<br />
+# Pre-process :<br />
 Data is loaded into Spark, cleaned, and parsed to extract relative fields such as description and login user for each one. <br />
 The time line is then aggregated and deleted repositories are filtered out. <br />
 also number of stars are aggregated and counted for each repositories through out the time line data using<br />
