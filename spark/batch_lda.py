@@ -124,26 +124,6 @@ def write_topics(records):
         redis_db.set(record[0], json.dumps(record[1]))
         print 'insert',  redis_db.get(record[0])
 
-def similar_repo(repos):
-    result =[]
-    for repo in repos:
-        if isinstance(repo[1][0],int):
-            topic_id = repo[1][0]
-            data = repo[1][1]
-        else :
-            topic_id = repo[1][1]
-            data = repo[1][0]
-            json_obj={}
-            json_obj['repo_name']=repo[0]
-            json_obj['repo_id']=data[0]
-            json_obj['stars']=data[1]
-            json_obj['updated']=data[2]
-            json_obj['url']=data[3]
-            json_obj['actor']=data[4]
-            json_obj['desc']=data[4]
-            result.append((topic_id,json_obj))
-
-    return result
 def findMax(record):
     w = record[0]
     max_w=0
