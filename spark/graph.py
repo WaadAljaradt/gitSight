@@ -92,7 +92,7 @@ stars = df.map(lambda x : Row(topic_id = id,userA=x.actor.login, userB=x.repo.na
 stars_tbl = sc_sql.createDataFrame(stars)
 stars_tbl.registerTempTable("stars_tbl")
 
-edges = sc_sql.sql("Select * FROM stars_tbl t1 where t1.userA in in (select user from repo_user_tbl) and t1.userB in (select user from repo_user_tbl)" ) 
+edges = sc_sql.sql("Select * FROM stars_tbl t1 where t1.userA in  (select user from repo_user_tbl) and t1.userB in (select user from repo_user_tbl)" ) 
 
 edges.rdd.foreachPartition(write_edges)
 print edges.take(1)
