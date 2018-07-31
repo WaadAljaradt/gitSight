@@ -17,7 +17,7 @@ http://www.slideshare.net/waadjaradat/insightdataengineeringgitsight <br />
 
 
  <br /> 
-# Motivation
+# Motivation <br /> 
 
 Find interesting repositories on Github based on description modeling, also look up repositories based on topic key word, <br /> gitsight makes it possible to search a repository name and get similar ones. It also displays other word associated with this topic. <br /> The land page shows the top 200 keyword most frequent used in repositories descriptions.  <br />
 
